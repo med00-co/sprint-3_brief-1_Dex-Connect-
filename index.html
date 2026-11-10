@@ -9,8 +9,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Inter:wght@200;400;500;600&display=swap" rel="stylesheet">
 
   <link rel="stylesheet" href="./dist/output.css">
-  <script src="data.js" defer></script>
-  <script src="script.js" defer ></script>
+  <script type="module" src="./src/main.js"></script>
 </head>
 <body class="bg-[linear-gradient(rgba(0,0,0,0.6),rgba(0,0,0,0.6)),url('../image/bg4.jpg')] bg-cover bg-center bg-fixed font-body text-ink">
 
@@ -23,13 +22,13 @@
         </div>
         <div>
           <p class="font-display  font-bold text-2xl font-extrabold leading-none">Mon Dex</p>
-          <p class="text-sm text-white">[Yu-Gi-Oh!] · <span id="creature-count">6</span> cards</p>
+          <p class="text-sm text-white">[Yu-Gi-Oh!] · <span id="creature-count"></span> cards</p>
         </div>
       </div>
       <nav aria-label="Navigation principale" class="flex flex-wrap gap-2">
         <a href="#grid" class="rounded-full bg-white/10 px-4 py-2">Cards</a>
-        <a href="#team" class="rounded-full bg-white/10 px-4 py-2">Mon équipe · <span id="team-count">0</span>/6</a>
-        <a href="#create" class="rounded-full bg-white px-4 py-2 font-bold text-ink">+ Nouvelle créature</a>
+        <a href="#team" class="rounded-full bg-white/10 px-4 py-2">Mon équipe · <span class="team-count font-bold">0</span>/6</a>
+        <a href="#create" class="hidden rounded-full bg-white px-4 py-2 font-bold text-ink">+ Nouvelle créature</a>
       </nav>
     </div>
   </header>
@@ -40,13 +39,44 @@
     <section aria-label="Recherche et filtres" class="flex flex-col gap-4">
       <div class="flex flex-wrap items-end justify-between gap-4">
         <h1 class="font-display text-4xl font-extrabold text-white">Trouver une créature</h1>
-        <label class="flex w-full max-w-md flex-col gap-1 text-sm font-bold text-white">
-          Rechercher par nom
-          <input id="search" type="search" placeholder="ex. Mossling" class="text-black field font-normal " >
-        </label>
+
+        <!-- place de recherche --------------------- -->
+       <form id="search-form" class="flex w-full max-w-md items-center gap-2 mx-auto">
+           
+            
+            <input id="search" type="search" placeholder="ex. Dark Magician" 
+            class="field flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm text-black focus:outline-none focus:ring-2 focus:ring-blue-500" >
+          
+            <div class="flex gap-2 mt-1">
+               <button id="recherche" type="submit" title="rechercher"
+               class="flex h-10 w-10 items-center justify-center rounded-lg bg-gold/50 text-white transition hover:bg-gold/80">
+                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="h-5 w-5">
+                       <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
+                     </svg>
+              </button>
+               
+              <button id="effacer-cherche" type="reset"
+               class="flex h-10 w-10 items-center justify-center rounded-lg bg-gray-200 text-gray-700 transition hover:bg-red-500"
+                title="Effacer">
+                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="h-5 w-5">
+                       <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+                     </svg>
+                </button>
+            </div>
+
+       </form>
+
       </div>
       <div id="filters" role="group" aria-label="Filtrer par type" class="flex h-11 flex-nowrap gap-2 overflow-x-auto">
           <button type="button" id="tous" class="chip bg-ink text-white border-ink lg:shrink-0 hover:bg-brand" >Tous</button>
+       <!-- Favoris ---------  -->
+          <button id="favoris" type="button" class="chip shrink-0    flex flex-wrap items-center gap-2  hover:bg-red-200">
+            <svg class="w-7 h-8 text-red-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+              <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12.01 6.001C6.5 1 1 8 5.782 13.001L12.011 20l6.23-7C23 8 17.5 1 12.01 6.002Z"/>
+            </svg>Favoris
+          </button>
+
+          <span class="text-white p-2">|</span>
           <button type="button" class="chip shrink-0      hover:bg-brand-light"    data-attribute ="Fire">Fire</button>
           <button type="button" class="chip shrink-0      hover:bg-brand-light"    data-attribute ="Water">Water</button>
           <button type="button" class="chip shrink-0      hover:bg-brand-light"    data-attribute ="Dark">Dark</button>
@@ -66,6 +96,11 @@
 
       </section>
 
+           <!-- ----------------charger plus------------ -->
+      <div class="bg-line border-2 border-gold p-2 rounded-xl text-gray-200 font-bold hover:bg-gold/80 transition hover:translate-y-1">
+        <button id="charger-plus" type="button">Charger Plus</button>
+      </div>
+
       <aside class="flex lg:w-[420px] max-w-[400px] md:mx-auto lg:shrink-0 flex-col gap-6">
 
         <!-- ===================== PANNEAU DE DÉTAIL ===================== -->
@@ -78,7 +113,7 @@
           <p id="team-message" class="text-sm text-invalid min-h-5"></p>
          <div class="flex flex-wrap justify-between mx-auto mb-4">
            <h2 class="font-display text-2xl font-extrabold  ">Mon équipe</h2>
-           <p class=" bg-brand-light rounded-lg px-4 py-2 font-bold"><span id="team-count">0</span> /6</p>
+           <p class="team-count bg-brand-light rounded-lg px-4 py-2 font-bold"><span >0</span> /6</p>
          </div>
           
           
@@ -117,7 +152,7 @@
     </div>
 
     <!-- ===================== FORMULAIRE DE CRÉATION ===================== -->
-    <section id="create" aria-label="Nouvelle créature" class="flex flex-col gap-6 rounded-card bg-white p-8">
+    <section id="create" aria-label="Nouvelle créature" class="hidden flex flex-col gap-6 rounded-card bg-white p-8">
       <div>
         <h2 class="font-display text-3xl font-extrabold">Nouvelle créature</h2>
         <p class="text-muted">Chaque champ est vérifié avant l'ajout de la créature.</p>
