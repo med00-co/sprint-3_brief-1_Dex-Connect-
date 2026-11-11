@@ -1,11 +1,18 @@
 export  const BASE_URL = "https://db.ygoprodeck.com/api/v7";
 
+// function for capitalize First letter in words
+function capitalizeFirstLetter(word) {
+if (!word) return '';
+return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+}
+
+
 // hadi bzch 
 export const fetchJson = async (url) =>{
    const response = await fetch(url) ;
 
    if(!response.ok){
-    throw new Error(`failed to connect ${response.status}`)
+    throw new Error(`Ereur ${response.status}`)
    }
    return await response.json()
 }
@@ -21,7 +28,7 @@ export const toCreature = (raw)=>{
         def : raw.def ?? 0, 
         level : raw.level ?? 0, 
         race : raw.race ?? "Unknown",
-        attribute : raw.attribute ?? "Unknown",
+        attribute : capitalizeFirstLetter(raw.attribute) ?? "Unknown",
         image : raw.card_images?.[0]?.image_url ?? "",
     }
 }
