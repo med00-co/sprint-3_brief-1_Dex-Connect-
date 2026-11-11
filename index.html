@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Mon Dex</title>
 
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Inter:wght@200;400;500;600&display=swap" rel="stylesheet">
 
   <link rel="stylesheet" href="./dist/output.css">
@@ -86,10 +86,11 @@
           <button type="button" class="chip shrink-0      hover:bg-brand-light"    data-attribute ="Divine">Divine</button>
       </div>
     </section>
-
+ 
     <div class="flex flex-col lg:flex-row gap-8 items-start">
-
-      <!-- ===================== GRILLE DES CRÉATURES ===================== -->
+      
+     <!-- ===================== GRILLE DES CRÉATURES ===================== -->
+    <div class="flex">
       <section id="grid" aria-label="Créatures" class="grid min-w-60 max-h-[1390px] overflow-y-auto flex-1 grid-cols-1 mx-auto md:grid-cols-3 lg:grid-cols-3 gap-5">
 
         
@@ -97,9 +98,12 @@
       </section>
 
            <!-- ----------------charger plus------------ -->
-      <div class="bg-line border-2 border-gold p-2 rounded-xl text-gray-200 font-bold hover:bg-gold/80 transition hover:translate-y-1">
-        <button id="charger-plus" type="button">Charger Plus</button>
+      <div class="bg-line border-2 border-gold p-2 rounded-xl text-gray-200 font-bold hover:bg-gold/80 transition hover:translate-y-1 ">
+        <button id="charger-plus" type="button">Charger Plus ..</button>
       </div>
+    </div>  
+    
+      
 
       <aside class="flex lg:w-[420px] max-w-[400px] md:mx-auto lg:shrink-0 flex-col gap-6">
 
@@ -113,7 +117,7 @@
           <p id="team-message" class="text-sm text-invalid min-h-5"></p>
          <div class="flex flex-wrap justify-between mx-auto mb-4">
            <h2 class="font-display text-2xl font-extrabold  ">Mon équipe</h2>
-           <p class="team-count bg-brand-light rounded-lg px-4 py-2 font-bold"><span >0</span> /6</p>
+           <p class="bg-brand-light rounded-lg px-4 py-2 font-bold"><span class="team-count">0</span> /6</p>
          </div>
           
           
