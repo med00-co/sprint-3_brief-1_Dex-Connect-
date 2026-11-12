@@ -1,13 +1,35 @@
-import { fetchJson , BASE_URL , getCreature} from "./services/api.js";
-import { renderGrid } from "./ui.js";
+// imports -----------------------------------------------
+import { getCreature } from "./services/api.js";
+import { renderGrid, showLoading, showEmpty, showError } from "./ui.js";
+// ------------------------------------------------------
 
-async function loadCards(){
- try {
-    const cards = await  getCreature(40)
-    renderGrid(cards)
- }
- catch(Error){
-    console.log(Error)
- }
+
+// Variables --------------------------------------------
+const cartesChargees = []
+let offset = 0
+let isLoading = false
+// ------------------------------------------------------
+
+
+// -------------------------------------------------loadList(append)
+const grid = document.getElementById('grid')
+const loadList = async (append) => {
+    if(isLoading) return ; 
+
+    isLoading = true
+    if(!append)showLoading(grid);
+    
+    try{
+       const cards =  await getCreature(offset)
+       cartesChargees.push(...cards)
+       renderGrid(cards , append)
+       offset += 20
+       console.log(cartesChargees)
+    }catch (error){
+        showError(grid, error.message)
+    }finally{
+        isLoading = false
+    }
+
 }
-loadCards()
+loadList(false)

@@ -33,7 +33,7 @@ module.exports = {
           synchro: "#EDEDED",  // Synchro (white)
           xyz: "#1B1B1F",      // Xyz (black)
           link: "#1F5FA8",     // Link (dark blue)
-          spell: "#1D9E74",    // Spell (green)
+          spell: "#27a298",    // Spell (green)
           trap: "#BC5A84",     // Trap (pink-purple)
         },
 
@@ -44,7 +44,7 @@ module.exports = {
           fire: "#E5322D",    // Feu
           water: "#1E88E5",   // Eau
           earth: "#8B5A2B",   // Terre
-          wind: "#2EAE6B",    // Vent
+          wind: "#1c9456",    // Vent
           divine: "#D4AF37",  // Divin
         },
 

@@ -7,18 +7,20 @@ return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
 }
 
 
-// hadi bzch 
+// -------------------------------------------------------------------fetchJson
 export const fetchJson = async (url) =>{
    const response = await fetch(url) ;
 
    if(!response.ok){
-    throw new Error(`Ereur ${response.status}`)
+    throw new Error(`Erreur ${response.status}`)
    }
    return await response.json()
 }
 
 // function bach n9ad lm3lomat li kayjiwni mn l API------------------toCreature()
+ 
 export const toCreature = (raw)=>{
+    const attr = !raw.attribute  ? 'Spell/Trap' : capitalizeFirstLetter(raw.attribute)
     return {
         id: raw.id ?? 0,
         name : raw.name ?? 'Unknown',
@@ -28,7 +30,7 @@ export const toCreature = (raw)=>{
         def : raw.def ?? 0, 
         level : raw.level ?? 0, 
         race : raw.race ?? "Unknown",
-        attribute : capitalizeFirstLetter(raw.attribute) ?? "Unknown",
+        attribute :  attr ,
         image : raw.card_images?.[0]?.image_url ?? "",
     }
 }
