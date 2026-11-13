@@ -167,7 +167,7 @@ export const renderPagination = (container , currentPage , totalPages) => {
     html += `
         <button
             data-page="${currentPage - 1}"
-            class="px-3 py-1.5 rounded border text-sm transition focus-visible
+            class="px-3 py-1.5 rounded border text-sm transition focus-visible:outline-2 focus-visible:outline-gold
                    ${prevDisabled
                        ? "opacity-40 cursor-not-allowed bg-ink/40 border-ink/30 text-white/40"
                        : "bg-ink border-ink hover:bg-gold/80 hover:border-gold text-white"}"
@@ -184,7 +184,7 @@ export const renderPagination = (container , currentPage , totalPages) => {
         html += `
             <button
                 data-page="${i}"
-                class="min-w-[2.5rem] px-3 py-1.5 rounded border text-sm transition focus-visible
+                class="min-w-[2.5rem] px-3 py-1.5 rounded border text-sm transition focus-visible:outline-2 focus-visible:outline-gold
                        ${isActive
                            ? "bg-gold border-gold text-ink font-bold cursor-default"
                            : "bg-ink border-ink text-white hover:bg-gold hover:text-ink hover:border-gold"}"
@@ -200,7 +200,7 @@ export const renderPagination = (container , currentPage , totalPages) => {
     html += `
         <button
             data-page="${currentPage + 1}"
-            class="px-3 py-1.5 rounded border text-sm transition focus-visible
+            class="px-3 py-1.5 rounded border text-sm transition focus-visible:outline-2 focus-visible:outline-gold
                    ${nextDisabled
                        ? "opacity-40 cursor-not-allowed bg-ink/40 border-ink/30 text-white/40"
                        : "bg-ink border-ink text-white hover:bg-gold hover:text-ink hover:border-gold"}"

@@ -41,6 +41,7 @@ const loadPage = async (page = 1, attribute = currentAttribute, query = currentQ
     document.getElementById('recherche').disabled = true
     document.querySelectorAll('#pagination button').forEach(b => b.disabled = true)
     document.getElementById('search').disabled = true
+    document.getElementById('effacer-cherche').disabled = true
 
     showLoading(grid)
     const start = Date.now()
@@ -79,11 +80,11 @@ const loadPage = async (page = 1, attribute = currentAttribute, query = currentQ
         document.querySelectorAll('#filters button').forEach(bn => bn.disabled = false)
         document.getElementById('recherche').disabled = false
         document.getElementById('search').disabled = false
-
+        document.getElementById('effacer-cherche').disabled = false
     }
 
 }
-loadPage(1, 'Tous', '')
+
 
 // --------------listener at pagination ------------------------------
 paginationContainer.addEventListener('click', (event)=>{
@@ -95,21 +96,12 @@ paginationContainer.addEventListener('click', (event)=>{
 })
 
 
+// -------------- small function for set the class for active filter button ------
+const setActiveFilterBtn = (btn) => {
+    const filtersPlace = document.getElementById('filters')
 
-// ----------------------listener at filter ---------------------------
-const filtersPlace = document.getElementById('filters')
-
-const activeButton = ["bg-ink", "border-ink" , "text-white" , "hover:bg-brand"]
-const inactiveButton = ["hover:bg-brand-light"]
-
-filtersPlace.addEventListener('click', (event) => {
-    const btn = event.target.closest('button[data-attribute], #tous')
-
-    if(!btn ) return ;
-
-    let attribute = btn.id === 'tous' ? 'Tous' : btn.dataset.attribute ;
-
-    if(attribute === currentAttribute) return
+    const activeButton = ["bg-ink", "border-ink" , "text-white" , "hover:bg-brand"]
+    const inactiveButton = ["hover:bg-brand-light"]
 
     filtersPlace.querySelectorAll('button[data-attribute], #tous').forEach(b =>{
         b.classList.remove(...activeButton)
@@ -117,6 +109,23 @@ filtersPlace.addEventListener('click', (event) => {
     })
     btn.classList.remove(...inactiveButton)
     btn.classList.add(...activeButton)
+}
+
+// ----------------------listener at filter ---------------------------
+const filtersPlace = document.getElementById('filters')
+
+
+
+filtersPlace.addEventListener('click', (event) => {
+    const btn = event.target.closest('button[data-attribute], #tous')
+
+    if(!btn ) return ;
+    setActiveFilterBtn(btn)
+    let attribute = btn.id === 'tous' ? 'Tous' : btn.dataset.attribute ;
+
+    if(attribute === currentAttribute) return
+
+    
 
     loadPage(1, attribute)
 })
@@ -134,7 +143,7 @@ if(!retryBtn) return ;
 })
 
 // --------------------------creature count / header-----------
-export const updateCreatureCount =  (totalRows) => {
+const updateCreatureCount =  (totalRows) => {
 
     const creatureCount = document.getElementById('creature-count')
     if(!creatureCount) return ;
@@ -162,18 +171,15 @@ document.getElementById('effacer-cherche').addEventListener('click', () => {
     currentQuery = ""
     currentAttribute = ""
 
-    const filtersPlace = document.getElementById('filters');
-    const activeButton = ["bg-ink", "border-ink", "text-white", "hover:bg-brand"];
-    const inactiveButton = ["hover:bg-brand-light"];
-
-    filtersPlace.querySelectorAll('button[data-attribute], #tous').forEach(b => {
-        b.classList.remove(...activeButton)
-        b.classList.add(...inactiveButton)
-    })
-
+    
+    
     const tousBtn = document.getElementById('tous')
-    tousBtn.classList.remove(...inactiveButton)
-    tousBtn.classList.add(...activeButton)
+    setActiveFilterBtn(tousBtn)
 
     loadPage(1, 'Tous', '')
 })
+
+
+// ----------------load the cards ------ final thing--
+loadPage(1, 'Tous', '')
+// ----------------------------------------------------
