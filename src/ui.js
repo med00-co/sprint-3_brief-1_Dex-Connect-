@@ -36,7 +36,7 @@ function createCard(card){
     article.classList.add(glowClasses[attrNameForEffect])
     article.setAttribute("data-attribute", `${card.attribute}`)
     article.dataset.id = card.id
-    const attributeClass = card.attribute != "Spell/Trap" ? attrClasses[card.attribute] : "Spell_Trap"
+    const attributeClass = attrClasses[attrNameForEffect]
 
     article.innerHTML = `
            <div class="relative flex h-70 items-center justify-center rounded-xl bg-brand-light ">
@@ -73,34 +73,24 @@ export const renderGrid = (list, append = false) => {
 export const showLoading = (container) => {
     container.innerHTML = ""
     const loadingPhase = document.createElement('div')
-    loadingPhase.className = "inline-flex items-center gap-3 col-span-full my-10"
+    loadingPhase.className = "flex gap-2 col-span-full my-10 items-center"
     loadingPhase.setAttribute('role', 'status')
+    loadingPhase.setAttribute('aria-label', 'Loading')
     loadingPhase.innerHTML = `
     
-  <svg
-    class="size-6 animate-spin text-indigo-600 dark:text-indigo-300"
-    xmlns="http://www.w3.org/2000/svg"
-    fill="none"
-    viewBox="0 0 24 24"
+  <span
+    class="size-5 animate-ping rounded-full bg-gold/80 dark:bg-indigo-300"
     aria-hidden="true"
-  >
-    <circle
-      class="opacity-25"
-      cx="12"
-      cy="12"
-      r="10"
-      stroke="currentColor"
-      stroke-width="4"
-    ></circle>
+  ></span>
+  <span
+    class="size-5 animate-ping rounded-full bg-gold/80 [animation-delay:0.2s] dark:bg-indigo-300"
+    aria-hidden="true"
+  ></span>
+  <span
+    class="size-5 animate-ping rounded-full bg-gold/80 [animation-delay:0.4s] dark:bg-indigo-300"
+    aria-hidden="true"
+  ></span>
 
-    <path
-      class="opacity-75"
-      fill="currentColor"
-      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-    ></path>
-  </svg>
-
-  <p class="font-medium text-gray-700 dark:text-gray-200">Chargement...</p>
 
     `
     container.appendChild(loadingPhase)
@@ -128,7 +118,7 @@ export const showEmpty = (container, text) => {
 
   <h2 class="mt-6 text-2xl font-bold text-gold">Hmm, nothing found</h2>
 
-  <p class="mt-4 text-pretty text-white-700">
+  <p class="mt-4 text-pretty text-white/70">
     ${text}
   </p>
   </div>
@@ -138,15 +128,89 @@ export const showEmpty = (container, text) => {
 // --------------------------------------------showError(container, message)
 export const showError = (container, message) => {
     container.innerHTML = `
-    <div class=" flex flex-col bg-ink/70 px-2 text-center gap-10 rounded-xl col-span-full h-screen ">
-      <div class="h-screen flex flex-col justify-center items-center">
-        <h1 class="text-4xl font-extrabold text-red-500 font-display ">ERROR</h1>
-        <p class="text-2xl font-medium text-white mt-10 border-2 rounded-md py-6 font-body ">${message}</p>
-        <p class="text-md text-white mt-12">Désolé pour le dérangement. Réessaye plus tard.</p>
+    <div class=" flex flex-col bg-ink/70 px-10 items-center w-full py-20 text-center gap-10 rounded-xl col-span-full  ">
+      <div class="flex flex-col justify-center items-center">
+        <h1 class="text-4xl font-extrabold text-red-500 font-display border-b-2 border-red-400">ERROR</h1>
+        <p class="text-2xl font-medium text-white mt-10 border-2 rounded-md p-4 font-body ">${message}</p>
+        <p class="text-sm text-white mt-12">Désolé pour le dérangement. Réessaye plus tard.</p>
 
         <button class="retry-btn rounded-xl mt-10 bg-attr-dark p-3 text-white hover:bg-none hover:bg-attr-dark/80 ">Réessayer</button>
        </div>
     </div>
     `
     
+}
+
+// ---------------------------------------------renderPagination(container , currentPage , totalPages)----------
+export const renderPagination = (container , currentPage , totalPages) => {
+    if(totalPages <= 1){
+        container.innerHTML = ""
+        return
+    }
+
+    // hnaya kanhssb mnin ghanvda flpagination w fin ghansali
+    let start = Math.max(1 , currentPage -2)
+    let end = start + 4
+
+    if(end > totalPages){
+        end = totalPages
+        start = Math.max(1 , end - 4)
+    }
+
+    let html = `
+        <nav class="col-span-full flex flex-wrap justify-center gap-2 mt-6" aria-label="Pagination">
+    `;
+
+    // button of previous -----------------------
+    const prevDisabled = currentPage === 1 ;
+    html += `
+        <button
+            data-page="${currentPage - 1}"
+            class="px-3 py-1.5 rounded border text-sm transition
+                   ${prevDisabled
+                       ? "opacity-40 cursor-not-allowed bg-gray-800 border-gray-700 text-gray-500"
+                       : "bg-gray-800 border-gray-600 hover:bg-gray-700 text-white"}"
+            ${prevDisabled ? "disabled" : ""}
+        >
+            ← Précédent
+        </button>
+    `
+    
+    
+    // numbers of pages 5   , -------------------
+    for(let i = start ; i <= end ; i++ ){
+        const isActive = i === currentPage
+        html += `
+            <button
+                data-page="${i}"
+                class="min-w-[2.5rem] px-3 py-1.5 rounded border text-sm transition
+                       ${isActive? "bg-amber-500 border-amber-400 text-black font-bold cursor-default"
+                           : "bg-gray-800 border-gray-600 hover:bg-gray-700 text-white"}"
+                ${isActive ? "disabled" : ""}
+            >
+                ${i}
+            </button>
+        `
+        
+    }
+    
+    // next Button ---------------------------------------
+    const nextDisabled = currentPage === totalPages
+    html += `
+        <button
+            data-page="${currentPage + 1}"
+            class="px-3 py-1.5 rounded border text-sm transition
+                   ${nextDisabled
+                       ? "opacity-40 cursor-not-allowed bg-gray-800 border-gray-700 text-gray-500"
+                       : "bg-gray-800 border-gray-600 hover:bg-gray-700 text-white"}"
+            ${nextDisabled ? "disabled" : ""}
+        >
+            Suivant →
+        </button>
+    `
+    html += `</nav>`
+
+    container.innerHTML = html
+    
+
 }

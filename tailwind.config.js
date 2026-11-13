@@ -51,6 +51,7 @@ module.exports = {
         // ---- NEW: form validation ----
         valid: "#22C55E",
         invalid: "#EF4444",
+        khal: rgb(0, 0, 0),
 
         // button disabled 
         disabled: {

@@ -7,7 +7,7 @@ return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
 }
 
 
-// -------------------------------------------------------------------fetchJson
+// ----hadi hiya li katjib lm3lomat mn API------------------------------------fetchJson
 export const fetchJson = async (url) =>{
    const response = await fetch(url) ;
 
@@ -36,10 +36,30 @@ export const toCreature = (raw)=>{
 }
 
 
-// lmain function , hya li katjm3 bin lfunctions ------------ getCreature()
-export const getCreature = async (offset = 0) => {
-    const url = `${BASE_URL}/cardinfo.php?num=20&offset=${offset}`
-    const data = await fetchJson(url)
+// lmain function , hya li katjm3 bin lfunctions -------------------- getCreature()
+export const getCreature = async (page , attribute) =>{
+    attribute = attribute.toLowerCase()
+    const offset = (page - 1 ) * 20
+    
+    const url = new URL(`${BASE_URL}/cardinfo.php?`);
+    const params = url.searchParams;
+
+    if(attribute && attribute !== "tous"){
+        params.append('attribute', attribute)
+    }
+    params.append('num', 20)
+    
+    params.append('offset', offset)
+    
+    let urlString = url.toString()
+    console.log(urlString)
+
+    const data = await fetchJson(urlString)
     const cards = data.data ?? [];
-    return cards.map(toCreature);
+    const totalPages = data.meta?.total_pages ?? 1 ;
+
+    return {
+        creatures: cards.map(toCreature),
+        totalPages,
+    } 
 }
