@@ -96,22 +96,11 @@ export const getCreature = async (page , attribute = "", query ="") =>{
 }
 
 // ---------------------------------------------------------------toCreatureDetail(raw)
-export const toCreatureDetail = (raw) =>{
-    const base = toCreature(raw)
-
+export const toCreatureDetail = (raw) => {
     return {
-        ...base ,
-        archetype : raw.archetype ?? "-",
-        setCounts : raw.card_sets?.length ?? 0, 
-
-        sets: raw.card_sets 
-            ?.map(set => set.set_name)
-            ?.slice(0,3)
-            ?.join(", ") || "-" , 
-
-        
-
-        
+        ...toCreature(raw),
+        archetype: raw.archetype ?? "-",
+        setsCount: raw.card_sets?.length ?? 0,
     }
 }
 
