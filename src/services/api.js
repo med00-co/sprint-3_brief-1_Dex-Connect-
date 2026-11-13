@@ -50,7 +50,7 @@ export const toCreature = (raw)=>{
 
 
 // lmain function , hya li katjm3 bin lfunctions -------------------- getCreature()
-export const getCreature = async (page , attribute = "", query) =>{
+export const getCreature = async (page , attribute = "", query ="") =>{
     attribute = attribute.toLowerCase()
     const offset = (page - 1 ) * PAGE_SIZE
     
@@ -64,7 +64,7 @@ export const getCreature = async (page , attribute = "", query) =>{
 
     const cleanQuery = query.trim();
     if(cleanQuery) {
-        params.append('name', cleanQuery)
+        params.append('fname', cleanQuery)
     }
     
     params.append('num', PAGE_SIZE)
@@ -93,7 +93,42 @@ export const getCreature = async (page , attribute = "", query) =>{
         }
         throw error
     }
-    
-    
-    
+}
+
+// ---------------------------------------------------------------toCreatureDetail(raw)
+export const toCreatureDetail = (raw) =>{
+    const base = toCreature(raw)
+
+    return {
+        ...base ,
+        archetype : raw.archetype ?? "-",
+        setCounts : raw.card_sets?.length ?? 0, 
+
+        sets: raw.card_sets 
+            ?.map(set => set.set_name)
+            ?.slice(0,3)
+            ?.join(", ") || "-" , 
+
+        
+
+        
+    }
+}
+
+// ---------------------------------------------------------getCreatureDetail(id)
+export const getCreatureDetail = async (id) => {
+    const url = new URL(`${BASE_URL}/cardinfo.php`);
+    const params = url.searchParams ;
+
+    params.append('id', id)
+
+    const data = await fetchJson(url.toString()) 
+
+    const raw = data.data?.[0]
+
+    if(!raw) {
+        throw new Error('Carte introuvable')
+    }
+
+    return toCreatureDetail(raw); 
 }

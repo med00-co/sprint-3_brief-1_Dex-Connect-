@@ -48,7 +48,7 @@ function createCard(card){
              <span class="rounded-full ${attributeClass} px-3 py-1 text-sm font-bold text-white" >${card.attribute}</span>
            </div>
            <p class="text-sm font-semibold text-white ml-2 mb-1">ATK ${card.atk} / DEF ${card.def}</p>
-           <button class="btn-outline add-to-team mt-auto hover:bg-gold-metal hover:border-0 disabled:hover:bg-none disabled:bg-disabled-bg disabled:text-disabled-text disabled:border-disabled-border disabled:cursor-not-allowed disabled:hover:bg-disabled-bg"> Ajouter à l'équipe </button>
+           <button class="hidden btn-outline add-to-team mt-auto hover:bg-gold-metal hover:border-0 disabled:hover:bg-none disabled:bg-disabled-bg disabled:text-disabled-text disabled:border-disabled-border disabled:cursor-not-allowed disabled:hover:bg-disabled-bg"> Ajouter à l'équipe </button>
            `;
           
 
@@ -215,4 +215,132 @@ export const renderPagination = (container , currentPage , totalPages) => {
     container.innerHTML = html
     
 
+}
+
+// -------------------------------------------------------------------------showDetail(creature)
+export const showDetail = (creature) => {
+    const detail = document.getElementById("detail");
+    if (!detail) return;
+
+    const atkPercent = typeof creature.atk === "number"
+        ? Math.min((creature.atk / 5000) * 100, 100)
+        : 0;
+    const defPercent = typeof creature.def === "number"
+        ? Math.min((creature.def / 5000) * 100, 100)
+        : 0;
+
+    const level = Math.max(0, Math.min(creature.level ?? 0, 12));
+    const starsHTML = level > 0 ? `
+        <div class="flex flex-col gap-1 text-sm">
+            <div class="flex items-center justify-between">
+                <span class="font-bold">Étoiles</span>
+                <span class="font-mono">${level} / 12</span>
+            </div>
+            <div class="flex flex-wrap gap-0.5 text-xl leading-none" role="img" aria-label="${level} étoiles sur 12">
+                <span class="text-gold">${"★".repeat(level)}</span>
+                <span class="text-line/30">${"★".repeat(12 - level)}</span>
+            </div>
+        </div>
+    ` : "";
+
+    const attrKey = creature.attribute === "Spell/Trap" ? "Spell_Trap" : creature.attribute;
+    const glow = glowClasses[attrKey] || "";
+
+    detail.classList.remove(...Object.values(glowClasses));
+    if (glow) detail.classList.add(glow);
+
+    detail.innerHTML = `
+        <!-- Header --------------------->
+        <div class="flex items-center justify-between">
+            <span class="font-mono text-sm text-muted">#${String(creature.id).padStart(3, "0")} · Détail</span>
+            <button type="button" id="ferme" aria-label="Fermer le détail"
+                    class="btn-outline w-11 px-0 hover:bg-invalid">✕</button>
+        </div>
+
+        <!-- Image ------------------------->
+        <div class="relative flex h-70 items-center justify-center rounded-xl bg-brand-light">
+            <img src="${creature.image}" alt="${creature.name}" loading="lazy" class="h-full w-full object-contain">
+        </div>
+
+        <!-- Nom + Badge --------------------->
+        <div class="flex items-center justify-between gap-2">
+            <h2 class="font-display text-3xl font-extrabold">${creature.name}</h2>
+            <span class="rounded-full ${attrClasses[attrKey] || "bg-gray-500"} px-3 py-1 text-sm font-bold text-white">
+                ${creature.attribute}
+            </span>
+        </div>
+
+        <!-- Description -------------------->
+        <p class="text-gray-700 text-sm leading-relaxed  whitespace-pre-line">${creature.description}</p>
+
+        <!-- Stats ----------->
+        <div class="flex flex-col gap-3 text-sm">
+            ${starsHTML}
+
+            <!-- ATK ------------------>
+            <div class="grid grid-cols-[60px_1fr_50px] items-center gap-2">
+                <span class="font-bold">ATK</span>
+                <span class="h-3 rounded-full bg-brand-light overflow-hidden">
+                    <span class="block h-3 rounded-full bg-brand" style="width: ${atkPercent}%"></span>
+                </span>
+                <span class="text-right font-mono">${creature.atk ?? "—"}</span>
+            </div>
+
+            <!-- DEF ------------>
+            <div class="grid grid-cols-[60px_1fr_50px] items-center gap-2">
+                <span class="font-bold">DEF</span>
+                <span class="h-3 rounded-full bg-brand-light overflow-hidden">
+                    <span class="block h-3 rounded-full bg-brand" style="width: ${defPercent}%"></span>
+                </span>
+                <span class="text-right font-mono">${creature.def ?? "—"}</span>
+            </div>
+        </div>
+
+        
+        <div class="grid grid-cols-2 gap-x-4 gap-y-2 text-sm border-t border-gray-200 pt-4 mt-2">
+            <div>
+                <span class="text-muted">Race</span>
+                <p class="font-semibold">${creature.race ?? "—"}</p>
+            </div>
+            <div>
+                <span class="text-muted">Type</span>
+                <p class="font-semibold">${creature.type ?? "—"}</p>
+            </div>
+            <div>
+                <span class="text-muted">Archetype</span>
+                <p class="font-semibold">${creature.archetype ?? "—"}</p>
+            </div>
+            <div>
+                <span class="text-muted">Éditions</span>
+                <p class="font-semibold">${creature.setsCount ? creature.setsCount + " set(s)" : "—"}</p>
+            </div>
+        </div>
+
+        <button type="button"
+                class="hidden add-to-team mt-4 bg-gold-metal text-ink font-semibold btn-primary
+                       hover:bg-gold-dark
+                       disabled:bg-disabled-bg disabled:text-disabled-text disabled:border-disabled-border
+                       disabled:cursor-not-allowed">
+            Ajouter à l'équipe
+        </button>
+    `;
+
+    detail.dataset.id = creature.id;
+};
+
+// --------------------------------------------------------------clearDetail()
+export const clearDetail = () => {
+    const detail = document.getElementById('detail')
+    if(!detail) return
+    
+
+    detail.classList.remove(...Object.values(glowClasses))
+
+    detail.innerHTML = `
+        <h2 class="font-display text-3xl font-extrabold text-center text-gray-400">
+            choose a card
+        </h2>
+    `
+
+    delete detail.dataset.id;
 }

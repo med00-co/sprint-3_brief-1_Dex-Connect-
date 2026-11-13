@@ -1,6 +1,8 @@
 // imports -----------------------------------------------
-import { getCreature } from "./services/api.js";
-import { renderGrid, showLoading, showEmpty, showError , renderPagination} from "./ui.js";
+import { getCreature, getCreatureDetail } from "./services/api.js";
+import { renderGrid, showLoading, showEmpty, showError , renderPagination , showDetail ,clearDetail ,
+    
+} from "./ui.js";
 // ------------------------------------------------------
 
 
@@ -14,11 +16,14 @@ let totalPages = 1
 let isLoading = false
 const MIN_LOADING_MS = 800
 
+let isDetailLoading = false;
+let currentDetailId = null
 
 // from DOM -----
 const grid = document.getElementById('grid')
 const paginationContainer = document.getElementById('pagination')
 
+const detailPanel = document.getElementById('detail')
 
 // ------------------------------------------------------
 // -------------------------------sleep(ms) function ------------
@@ -132,15 +137,7 @@ filtersPlace.addEventListener('click', (event) => {
 
 
 
-// ----------------------listener at RETRY btn -----------------
 
-
-grid.addEventListener('click', (e)=>{
-    
-const retryBtn = e.target.closest('.retry-btn') 
-if(!retryBtn) return ;
-    loadPage(currentPage, currentAttribute)
-})
 
 // --------------------------creature count / header-----------
 const updateCreatureCount =  (totalRows) => {
@@ -179,6 +176,56 @@ document.getElementById('effacer-cherche').addEventListener('click', () => {
     loadPage(1, 'Tous', '')
 })
 
+// ----------------------------------------------------------openDetail(id)---
+const openDetail = async (id) => {
+    if (isDetailLoading) return ;
+
+    isDetailLoading = true ; 
+    currentDetailId = id 
+
+    showLoading(detailPanel)
+
+    try{
+        const creature = await getCreatureDetail(id)
+        showDetail(creature)
+
+        if(window.innerWidth < 1024) {
+            detailPanel.scrollIntoView({behavior: "smooth" , block: "start"})
+        }
+    }catch (error) {
+        showError(detailPanel , error.message ||"Impossible de charger la carte")
+    }finally {
+        isDetailLoading = false
+    }
+}
+
+// ----------------------------------listener  at grid with retry btn ---------
+grid.addEventListener('click', (e) => {
+    const retryBtn = e.target.closest(".retry-btn")
+    if(retryBtn) {
+        loadPage(currentPage, currentAttribute , currentQuery)
+        return
+    }
+
+    const article = e.target.closest("article[data-id]")
+    if(article) {
+        const id = Number(article.dataset.id);
+        if(id) openDetail(id)
+    }
+})
+// ------------------------------listener at detailPanel ----------
+detailPanel.addEventListener('click', (e) => {
+    if(e.target.closest('#ferme')){
+        clearDetail()
+        return
+    }
+
+    if(e.target.closest('.retry-btn')){
+        if(currentDetailId){
+            openDetail(currentDetailId)
+        }
+    }
+})
 
 // ----------------load the cards ------ final thing--
 loadPage(1, 'Tous', '')
