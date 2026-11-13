@@ -7,11 +7,13 @@ import { renderGrid, showLoading, showEmpty, showError , renderPagination} from 
 // Variables --------------------------------------------
 let currentPage = 1;
 let currentAttribute = "Tous"
+let currentQuery = ""
 
 let totalPages = 1
 
 let isLoading = false
 const MIN_LOADING_MS = 800
+
 
 // from DOM -----
 const grid = document.getElementById('grid')
@@ -26,28 +28,27 @@ const sleep = (ms = 0) => new Promise(resolve => setTimeout(resolve, ms));
 // -------------------------------------------------loadPage()
 
 
-const loadPage = async (page = 1, attribute = currentAttribute) => {
+const loadPage = async (page = 1, attribute = currentAttribute, query = currentQuery) => {
     
     if(isLoading) return ; 
 
     isLoading = true
     currentPage = page;
     currentAttribute = attribute
+    currentQuery = query
 
     document.querySelectorAll('#filters button').forEach(bn => bn.disabled = true)
     document.getElementById('recherche').disabled = true
     document.querySelectorAll('#pagination button').forEach(b => b.disabled = true)
- 
+    document.getElementById('search').disabled = true
+
     showLoading(grid)
-    
-    
     const start = Date.now()
     
     try{
-        const { creatures, totalPages: pages , totalRows} = await getCreature(page, attribute)
-        totalPages = pages
-         
+        const { creatures, totalPages: pages , totalRows} = await getCreature(page, attribute, query)
 
+        totalPages = pages
         updateCreatureCount(totalRows);
 
         const elapsed = Date.now() - start ;
@@ -56,32 +57,33 @@ const loadPage = async (page = 1, attribute = currentAttribute) => {
         }
 
         if (creatures.length === 0) {
-             showEmpty(grid , 'Aucune créature trouvé');
+             const emptyMsg = currentQuery ? `Aucune créature trouvée pour << ${currentQuery} >>` : 'Aucune créature trouvée'
+
+             showEmpty(grid , emptyMsg);
              renderPagination(paginationContainer, currentPage, totalPages); 
         } else {
              renderGrid(creatures, false);
              renderPagination(paginationContainer, currentPage, totalPages);
         }
+        grid.scrollTop = 0
 
-
-       
     }catch (error){
          paginationContainer.innerHTML = ""
 
-         const message = error instanceof TypeError ? "Pas de connection Internet" : "Erreur serveur (status)"
-         showError(grid, message)
+         
+         showError(grid, error.message || "Une erreur est servenue")
 
     }finally{
         isLoading = false
 
         document.querySelectorAll('#filters button').forEach(bn => bn.disabled = false)
         document.getElementById('recherche').disabled = false
-        
+        document.getElementById('search').disabled = false
 
     }
 
 }
-loadPage(1, 'Tous')
+loadPage(1, 'Tous', '')
 
 // --------------listener at pagination ------------------------------
 paginationContainer.addEventListener('click', (event)=>{
@@ -140,3 +142,38 @@ export const updateCreatureCount =  (totalRows) => {
 
     creatureCount.textContent = count.toLocaleString('fr-FR')
 }
+
+// ----------------------------search button submit -------------
+const searchForm = document.getElementById('search-form');
+const searchInput = document.getElementById('search')
+
+searchForm.addEventListener('submit', (e) =>{
+    e.preventDefault();
+
+    const text = searchInput.value.trim()
+    if(!text) return ;
+
+    currentQuery = text
+    loadPage(1, currentAttribute, currentQuery)
+})
+document.getElementById('effacer-cherche').addEventListener('click', () => {
+    searchInput.value = ""
+
+    currentQuery = ""
+    currentAttribute = ""
+
+    const filtersPlace = document.getElementById('filters');
+    const activeButton = ["bg-ink", "border-ink", "text-white", "hover:bg-brand"];
+    const inactiveButton = ["hover:bg-brand-light"];
+
+    filtersPlace.querySelectorAll('button[data-attribute], #tous').forEach(b => {
+        b.classList.remove(...activeButton)
+        b.classList.add(...inactiveButton)
+    })
+
+    const tousBtn = document.getElementById('tous')
+    tousBtn.classList.remove(...inactiveButton)
+    tousBtn.classList.add(...activeButton)
+
+    loadPage(1, 'Tous', '')
+})

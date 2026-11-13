@@ -40,7 +40,7 @@ function createCard(card){
 
     article.innerHTML = `
            <div class="relative flex h-70 items-center justify-center rounded-xl bg-brand-light ">
-              <img src="${card.image}" alt="${card.name}" class="h-full w-full" >
+              <img src="${card.image}" alt="carte Yu-gi-Oh!" loading="lazy" class="h-full w-full" >
              <span class="absolute left-3 top-2 font-mono text-sm text-muted">#${String(card.id).padStart(3 ,"0")}</span>
            </div>
            <div class="flex items-center justify-between gap-2 ml-2">
@@ -117,7 +117,7 @@ export const showEmpty = (container, text) => {
     />
   </svg>
 
-  <h2 class="mt-6 text-2xl font-bold text-gold">Hmm, nothing found</h2>
+  <h2 class="mt-6 text-2xl font-bold text-gold">Aucune carte trouvée</h2>
 
   <p class="mt-4 text-pretty text-white/70">
     ${text}
@@ -129,7 +129,7 @@ export const showEmpty = (container, text) => {
 // --------------------------------------------showError(container, message)
 export const showError = (container, message) => {
     container.innerHTML = `
-    <div class=" flex flex-col bg-ink/70 px-10 items-center w-full py-20 text-center gap-10 rounded-xl col-span-full  ">
+    <div role="alert" class=" flex flex-col bg-ink/70 px-10 items-center w-full py-20 text-center gap-10 rounded-xl col-span-full  ">
       <div class="flex flex-col justify-center items-center">
         <h1 class="text-4xl font-extrabold text-red-500 font-display border-b-2 border-red-400">ERROR</h1>
         <p class="text-2xl font-medium text-white mt-10 border-2 rounded-md p-4 font-body ">${message}</p>
@@ -167,10 +167,10 @@ export const renderPagination = (container , currentPage , totalPages) => {
     html += `
         <button
             data-page="${currentPage - 1}"
-            class="px-3 py-1.5 rounded border text-sm transition
+            class="px-3 py-1.5 rounded border text-sm transition focus-visible
                    ${prevDisabled
-                       ? "opacity-40 cursor-not-allowed bg-gray-800 border-gray-700 text-gray-500"
-                       : "bg-gray-800 border-gray-600 hover:bg-gray-700 text-white"}"
+                       ? "opacity-40 cursor-not-allowed bg-ink/40 border-ink/30 text-white/40"
+                       : "bg-ink border-ink hover:bg-gold/80 hover:border-gold text-white"}"
             ${prevDisabled ? "disabled" : ""}
         >
             ← Précédent
@@ -179,36 +179,37 @@ export const renderPagination = (container , currentPage , totalPages) => {
     
     
     // numbers of pages 5   , -------------------
-    for(let i = start ; i <= end ; i++ ){
-        const isActive = i === currentPage
+    for (let i = start; i <= end; i++) {
+        const isActive = i === currentPage;
         html += `
             <button
                 data-page="${i}"
-                class="min-w-[2.5rem] px-3 py-1.5 rounded border text-sm transition
-                       ${isActive? "bg-amber-500 border-amber-400 text-black font-bold cursor-default"
-                           : "bg-gray-800 border-gray-600 hover:bg-gray-700 text-white"}"
+                class="min-w-[2.5rem] px-3 py-1.5 rounded border text-sm transition focus-visible
+                       ${isActive
+                           ? "bg-gold border-gold text-ink font-bold cursor-default"
+                           : "bg-ink border-ink text-white hover:bg-gold hover:text-ink hover:border-gold"}"
                 ${isActive ? "disabled" : ""}
             >
                 ${i}
             </button>
-        `
-        
+        `;
     }
     
     // next Button ---------------------------------------
-    const nextDisabled = currentPage === totalPages
+    const nextDisabled = currentPage === totalPages;
     html += `
         <button
             data-page="${currentPage + 1}"
-            class="px-3 py-1.5 rounded border text-sm transition
+            class="px-3 py-1.5 rounded border text-sm transition focus-visible
                    ${nextDisabled
-                       ? "opacity-40 cursor-not-allowed bg-gray-800 border-gray-700 text-gray-500"
-                       : "bg-gray-800 border-gray-600 hover:bg-gray-700 text-white"}"
+                       ? "opacity-40 cursor-not-allowed bg-ink/40 border-ink/30 text-white/40"
+                       : "bg-ink border-ink text-white hover:bg-gold hover:text-ink hover:border-gold"}"
             ${nextDisabled ? "disabled" : ""}
         >
             Suivant →
         </button>
     `
+
     html += `</nav>`
 
     container.innerHTML = html

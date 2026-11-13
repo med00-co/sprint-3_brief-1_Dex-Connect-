@@ -11,7 +11,7 @@
   <link rel="stylesheet" href="./dist/output.css">
   <script type="module" src="./src/main.js"></script>
 </head>
-<body class="bg-[linear-gradient(rgba(0,0,0,0.6),rgba(0,0,0,0.6)),url('../image/bg4.jpg')] bg-cover bg-center bg-fixed font-body text-ink">
+<body class="relative min-h-screen bg-[linear-gradient(rgba(0,0,0,0.6),rgba(0,0,0,0.6)),url('../image/bg4.jpg')] bg-cover bg-center bg-fixed font-body text-ink  ">
 
   <!-- ===================== EN-TÊTE ===================== -->
   <header class="bg-gold-metal font-bold text-black-500">
@@ -55,7 +55,7 @@
                      </svg>
               </button>
                
-              <button id="effacer-cherche" type="reset"
+              <button id="effacer-cherche" type="button"
                class="flex h-10 w-10 items-center justify-center rounded-lg bg-gray-200 text-gray-700 transition hover:bg-red-500"
                 title="Effacer">
                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="h-5 w-5">
@@ -113,7 +113,7 @@
         </section>
 
         <!-- ===================== MON ÉQUIPE (INCOMPLÈTE) ===================== -->
-        <section id="team" aria-label="Mon équipe" class="rounded-card bg-white p-6  ">
+        <section id="team" aria-label="Mon équipe" class=" rounded-card bg-white p-6  ">
           <p id="team-message" class="text-sm text-invalid min-h-5"></p>
          <div class="flex flex-wrap justify-between mx-auto mb-4">
            <h2 class="font-display text-2xl font-extrabold  ">Mon équipe</h2>

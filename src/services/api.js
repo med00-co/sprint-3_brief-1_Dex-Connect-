@@ -10,11 +10,23 @@ return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
 
 // ----hadi hiya li katjib lm3lomat mn API------------------------------------fetchJson
 export const fetchJson = async (url) =>{
-   const response = await fetch(url) ;
+   let response 
 
-   if(!response.ok){
-    throw new Error(`Erreur ${response.status}`)
+   try{
+     response = await fetch(url) ;
+   }catch(networkError){
+    const error = new Error('Pas de connexion Internet')
+     error.status = 0 
+     throw error
    }
+    
+   
+   if(!response.ok){
+    const error =  new Error(`Erreur serveur ${response.status}`)
+    error.status = response.status
+    throw error
+   }
+
    return await response.json()
 }
 
@@ -38,32 +50,50 @@ export const toCreature = (raw)=>{
 
 
 // lmain function , hya li katjm3 bin lfunctions -------------------- getCreature()
-export const getCreature = async (page , attribute = "") =>{
+export const getCreature = async (page , attribute = "", query) =>{
     attribute = attribute.toLowerCase()
     const offset = (page - 1 ) * PAGE_SIZE
     
     const url = new URL(`${BASE_URL}/cardinfo.php?`);
     const params = url.searchParams;
-
+    
     if(attribute && attribute !== "tous"){
         params.append('attribute', attribute)
     }
-    params.append('num', PAGE_SIZE)
     
+
+    const cleanQuery = query.trim();
+    if(cleanQuery) {
+        params.append('name', cleanQuery)
+    }
+    
+    params.append('num', PAGE_SIZE)
     params.append('offset', offset)
     
-    let urlString = url.toString()
+    const urlString = url.toString()
     
+    try {
+       const data = await fetchJson(urlString)
+       const cards = data.data ?? [];
+       const totalPages = data.meta?.total_pages ?? 1 ;
 
-    const data = await fetchJson(urlString)
-    const cards = data.data ?? [];
-    const totalPages = data.meta?.total_pages ?? 1 ;
-
-    const totalRows = data.meta?.total_rows ?? 0;
-
-    return {
-        creatures: cards.map(toCreature),
-        totalPages,
-        totalRows,
-    } 
+       const totalRows = data.meta?.total_rows ?? 0; 
+       return {
+           creatures: cards.map(toCreature),
+           totalPages,
+           totalRows,
+       }
+    }catch (error){
+        if (cleanQuery && (error.status === 400 || error.status === 404)){
+            return {
+                creatures: [],
+                totalPages: 0 , 
+                totalRows: 0 ,
+            }
+        }
+        throw error
+    }
+    
+    
+    
 }
