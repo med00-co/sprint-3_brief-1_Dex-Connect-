@@ -58,11 +58,12 @@ function createCard(card){
 }
 
 // ----------------------------------------------renderGrid()
-export const renderGrid = (list, append = false) => {
+export const renderGrid = (list , append = false ) => {
     const grid = document.getElementById("grid")
     if(!append){
-       grid.innerHTML = ""
+        grid.innerHTML = ""
     }
+
     list.forEach((creature) => {
         const card = createCard(creature)
         grid.appendChild(card)

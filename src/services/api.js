@@ -1,4 +1,5 @@
 export  const BASE_URL = "https://db.ygoprodeck.com/api/v7";
+export const PAGE_SIZE = 20
 
 // function for capitalize First letter in words
 function capitalizeFirstLetter(word) {
@@ -37,9 +38,9 @@ export const toCreature = (raw)=>{
 
 
 // lmain function , hya li katjm3 bin lfunctions -------------------- getCreature()
-export const getCreature = async (page , attribute) =>{
+export const getCreature = async (page , attribute = "") =>{
     attribute = attribute.toLowerCase()
-    const offset = (page - 1 ) * 20
+    const offset = (page - 1 ) * PAGE_SIZE
     
     const url = new URL(`${BASE_URL}/cardinfo.php?`);
     const params = url.searchParams;
@@ -47,19 +48,22 @@ export const getCreature = async (page , attribute) =>{
     if(attribute && attribute !== "tous"){
         params.append('attribute', attribute)
     }
-    params.append('num', 20)
+    params.append('num', PAGE_SIZE)
     
     params.append('offset', offset)
     
     let urlString = url.toString()
-    console.log(urlString)
+    
 
     const data = await fetchJson(urlString)
     const cards = data.data ?? [];
     const totalPages = data.meta?.total_pages ?? 1 ;
 
+    const totalRows = data.meta?.total_rows ?? 0;
+
     return {
         creatures: cards.map(toCreature),
         totalPages,
+        totalRows,
     } 
 }

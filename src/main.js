@@ -7,9 +7,9 @@ import { renderGrid, showLoading, showEmpty, showError , renderPagination} from 
 // Variables --------------------------------------------
 let currentPage = 1;
 let currentAttribute = "Tous"
-let activeAttribute = ""
+
 let totalPages = 1
-let offset = 0
+
 let isLoading = false
 const MIN_LOADING_MS = 800
 
@@ -33,6 +33,10 @@ const loadPage = async (page = 1, attribute = currentAttribute) => {
     isLoading = true
     currentPage = page;
     currentAttribute = attribute
+
+    document.querySelectorAll('#filters button').forEach(bn => bn.disabled = true)
+    document.getElementById('recherche').disabled = true
+    document.querySelectorAll('#pagination button').forEach(b => b.disabled = true)
  
     showLoading(grid)
     
@@ -40,16 +44,19 @@ const loadPage = async (page = 1, attribute = currentAttribute) => {
     const start = Date.now()
     
     try{
-        const { creatures, totalPages: pages } = await getCreature(page, attribute)
+        const { creatures, totalPages: pages , totalRows} = await getCreature(page, attribute)
         totalPages = pages
-        
+         
+
+        updateCreatureCount(totalRows);
+
         const elapsed = Date.now() - start ;
         if(elapsed < MIN_LOADING_MS){
             await sleep(MIN_LOADING_MS - elapsed)
         }
 
         if (creatures.length === 0) {
-             showEmpty(grid);
+             showEmpty(grid , 'Aucune créature trouvé');
              renderPagination(paginationContainer, currentPage, totalPages); 
         } else {
              renderGrid(creatures, false);
@@ -59,10 +66,18 @@ const loadPage = async (page = 1, attribute = currentAttribute) => {
 
        
     }catch (error){
-        showError(grid, error.message)
-        
+         paginationContainer.innerHTML = ""
+
+         const message = error instanceof TypeError ? "Pas de connection Internet" : "Erreur serveur (status)"
+         showError(grid, message)
+
     }finally{
         isLoading = false
+
+        document.querySelectorAll('#filters button').forEach(bn => bn.disabled = false)
+        document.getElementById('recherche').disabled = false
+        
+
     }
 
 }
@@ -88,7 +103,7 @@ const inactiveButton = ["hover:bg-brand-light"]
 filtersPlace.addEventListener('click', (event) => {
     const btn = event.target.closest('button[data-attribute], #tous')
 
-    if(!btn || btn.id === 'favoris' ) return ;
+    if(!btn ) return ;
 
     let attribute = btn.id === 'tous' ? 'Tous' : btn.dataset.attribute ;
 
@@ -108,8 +123,20 @@ filtersPlace.addEventListener('click', (event) => {
 
 // ----------------------listener at RETRY btn -----------------
 
-const retryBtn = document.querySelector('.retry-btn') 
 
-retryBtn.addEventListener('click', ()=>{
-    loadPage(1)
+grid.addEventListener('click', (e)=>{
+    
+const retryBtn = e.target.closest('.retry-btn') 
+if(!retryBtn) return ;
+    loadPage(currentPage, currentAttribute)
 })
+
+// --------------------------creature count / header-----------
+export const updateCreatureCount =  (totalRows) => {
+
+    const creatureCount = document.getElementById('creature-count')
+    if(!creatureCount) return ;
+    const count = totalRows ?? 0
+
+    creatureCount.textContent = count.toLocaleString('fr-FR')
+}
