@@ -28,7 +28,7 @@ export const attrClasses = {
 // ----------------------------------------------createCard()
 const cardClass = "flex flex-col gap-3 border-2 border-ink  bg-[url('../image/cover.jpg')] p-3 pb-4  rounded-[24px] overflow-hidden bg-cover bg-center bg-no-repeat  h-full w-full    shadow-[0_0_20px_3px]    cursor-pointer transition-[transform,translate,scale,rotate,opacity,box-shadow] duration-300 group-hover:opacity-35 group-hover:scale-95 hover:opacity-100! hover:scale-100 hover:-translate-y-2.5 hover:shadow-[0_16px_36px_rgba(0,0,0,.4)]  focus-visible:opacity-100! focus-visible:-translate-y-2.5 focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-thv18-green motion-reduce:transition-none "
 
-function createCard(card){
+function createCard(card, isFav = false){
    const article = document.createElement("article")
     
    const attrNameForEffect = card.attribute != "Spell/Trap" ? card.attribute : "Spell_Trap"
@@ -47,8 +47,11 @@ function createCard(card){
              <h3 class="font-display text-xl text-white font-semibold">${card.name}</h3>
              <span class="rounded-full ${attributeClass} px-3 py-1 text-sm font-bold text-white" >${card.attribute}</span>
            </div>
-           <p class="text-sm font-semibold text-white ml-2 mb-1">ATK ${card.atk} / DEF ${card.def}</p>
-           <button class="hidden btn-outline add-to-team mt-auto hover:bg-gold-metal hover:border-0 disabled:hover:bg-none disabled:bg-disabled-bg disabled:text-disabled-text disabled:border-disabled-border disabled:cursor-not-allowed disabled:hover:bg-disabled-bg"> Ajouter à l'équipe </button>
+           <div class="flex items-center justify-between ml-2 mb-1">
+             <p class="text-sm font-semibold text-white">ATK ${card.atk} / DEF ${card.def}</p>
+             <button type="button" data-id="${card.id}" aria-pressed="${isFav}" aria-label="Favori"
+               class="fav-btn text-3xl leading-none hover:text-gold ${isFav ? 'text-gold' : 'text-white/50'}">★</button>
+           </div>
            `;
           
 
@@ -58,16 +61,12 @@ function createCard(card){
 }
 
 // ----------------------------------------------renderGrid()
-export const renderGrid = (list , append = false ) => {
+export const renderGrid = (list, favIds = new Set()) => {
     const grid = document.getElementById("grid")
-    if(!append){
-        grid.innerHTML = ""
-    }
-
+    grid.innerHTML = ""
     list.forEach((creature) => {
-        const card = createCard(creature)
-        grid.appendChild(card)
-    });
+        grid.appendChild(createCard(creature, favIds.has(creature.id)))
+    })
 }
 
 // --------------------------------------------showLoading(container)
@@ -218,7 +217,7 @@ export const renderPagination = (container , currentPage , totalPages) => {
 }
 
 // -------------------------------------------------------------------------showDetail(creature)
-export const showDetail = (creature) => {
+export const showDetail = (creature, isFav = false) => {
     const detail = document.getElementById("detail");
     if (!detail) return;
 
@@ -316,12 +315,9 @@ export const showDetail = (creature) => {
             </div>
         </div>
 
-        <button type="button"
-                class="hidden add-to-team mt-4 bg-gold-metal text-ink font-semibold btn-primary
-                       hover:bg-gold-dark
-                       disabled:bg-disabled-bg disabled:text-disabled-text disabled:border-disabled-border
-                       disabled:cursor-not-allowed">
-            Ajouter à l'équipe
+        <button type="button" data-id="${creature.id}"
+                class="fav-btn mt-4 rounded-xl bg-gold-metal px-4 py-2 font-semibold text-ink hover:opacity-90">
+            ${isFav ? "★ Retirer des favoris" : "☆ Ajouter aux favoris"}
         </button>
     `;
 
