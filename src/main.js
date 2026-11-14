@@ -1,8 +1,7 @@
 // imports -----------------------------------------------
 import { getCreature, getCreatureDetail } from "./services/api.js";
-import { renderGrid, showLoading, showEmpty, showError , renderPagination , showDetail ,clearDetail ,
-    
-} from "./ui.js";
+import { renderGrid, showLoading, showEmpty, showError , renderPagination , showDetail , clearDetail } from "./ui.js";
+import { getFavorites, toggleFavorite, isFavorite, saveLastSearch, getLastSearch, clearLastSearch } from "./storage.js";
 // ------------------------------------------------------
 
 
@@ -19,6 +18,10 @@ const MIN_LOADING_MS = 800
 let isDetailLoading = false;
 let currentDetailId = null
 
+let viewMode = "list"
+let pageCreatures = []
+let currentDetail = null
+
 // from DOM -----
 const grid = document.getElementById('grid')
 const paginationContainer = document.getElementById('pagination')
@@ -30,6 +33,10 @@ const detailPanel = document.getElementById('detail')
 const sleep = (ms = 0) => new Promise(resolve => setTimeout(resolve, ms));
 // -------------------------------------------------------------------
 
+// -------------------------------favIds() : les id des favoris ------------
+const favIds = () => new Set(getFavorites().map(c => c.id))
+// -------------------------------------------------------------------
+
 // -------------------------------------------------loadPage()
 
 
@@ -38,6 +45,7 @@ const loadPage = async (page = 1, attribute = currentAttribute, query = currentQ
     if(isLoading) return ; 
 
     isLoading = true
+    viewMode = "list"
     currentPage = page;
     currentAttribute = attribute
     currentQuery = query
@@ -55,6 +63,7 @@ const loadPage = async (page = 1, attribute = currentAttribute, query = currentQ
         const { creatures, totalPages: pages , totalRows} = await getCreature(page, attribute, query)
 
         totalPages = pages
+        pageCreatures = creatures
         updateCreatureCount(totalRows);
 
         const elapsed = Date.now() - start ;
@@ -68,7 +77,7 @@ const loadPage = async (page = 1, attribute = currentAttribute, query = currentQ
              showEmpty(grid , emptyMsg);
              renderPagination(paginationContainer, currentPage, totalPages); 
         } else {
-             renderGrid(creatures, false);
+             renderGrid(creatures, favIds());
              renderPagination(paginationContainer, currentPage, totalPages);
         }
         grid.scrollTop = 0
@@ -77,7 +86,7 @@ const loadPage = async (page = 1, attribute = currentAttribute, query = currentQ
          paginationContainer.innerHTML = ""
 
          
-         showError(grid, error.message || "Une erreur est servenue")
+         showError(grid, error.message || "Une erreur est survenue")
 
     }finally{
         isLoading = false
@@ -108,7 +117,7 @@ const setActiveFilterBtn = (btn) => {
     const activeButton = ["bg-ink", "border-ink" , "text-white" , "hover:bg-brand"]
     const inactiveButton = ["hover:bg-brand-light"]
 
-    filtersPlace.querySelectorAll('button[data-attribute], #tous').forEach(b =>{
+    filtersPlace.querySelectorAll('button[data-attribute], #tous, #favoris').forEach(b =>{
         b.classList.remove(...activeButton)
         b.classList.add(...inactiveButton)
     })
@@ -122,21 +131,22 @@ const filtersPlace = document.getElementById('filters')
 
 
 filtersPlace.addEventListener('click', (event) => {
-    const btn = event.target.closest('button[data-attribute], #tous')
+    const btn = event.target.closest('button[data-attribute], #tous, #favoris')
 
     if(!btn ) return ;
     setActiveFilterBtn(btn)
+
+    if(btn.id === 'favoris'){
+        showFavorites()
+        return
+    }
+
     let attribute = btn.id === 'tous' ? 'Tous' : btn.dataset.attribute ;
 
-    if(attribute === currentAttribute) return
-
-    
+    if(attribute === currentAttribute && viewMode === "list") return
 
     loadPage(1, attribute)
 })
-
-
-
 
 
 // --------------------------creature count / header-----------
@@ -160,16 +170,23 @@ searchForm.addEventListener('submit', (e) =>{
     if(!text) return ;
 
     currentQuery = text
+    saveLastSearch(text)
+
+    //---- si on etait dans Favoris, on remet le chip de l'attribut actif
+    const chip = currentAttribute === 'Tous'
+        ? document.getElementById('tous')
+        : filtersPlace.querySelector(`[data-attribute="${currentAttribute}"]`)
+    setActiveFilterBtn(chip)
+
     loadPage(1, currentAttribute, currentQuery)
 })
 document.getElementById('effacer-cherche').addEventListener('click', () => {
     searchInput.value = ""
+    clearLastSearch()
 
     currentQuery = ""
     currentAttribute = ""
 
-    
-    
     const tousBtn = document.getElementById('tous')
     setActiveFilterBtn(tousBtn)
 
@@ -187,7 +204,8 @@ const openDetail = async (id) => {
 
     try{
         const creature = await getCreatureDetail(id)
-        showDetail(creature)
+        currentDetail = creature
+        showDetail(creature, isFavorite(id))
 
         if(window.innerWidth < 1024) {
             detailPanel.scrollIntoView({behavior: "smooth" , block: "start"})
@@ -199,11 +217,68 @@ const openDetail = async (id) => {
     }
 }
 
-// ----------------------------------listener  at grid with retry btn ---------
+// ----------------------------------------------------------findCreature(id)
+const findCreature = (id) => {
+    return pageCreatures.find(c => c.id === id)
+        ?? getFavorites().find(c => c.id === id)
+        ?? (currentDetail?.id === id ? currentDetail : null)
+}
+
+// ----------------------------------------------------------refreshStars()
+const refreshStars = () => {
+    const ids = favIds()
+    grid.querySelectorAll('.fav-btn').forEach(btn => {
+        const isOn = ids.has(Number(btn.dataset.id))
+        btn.classList.toggle('text-gold', isOn)
+        btn.classList.toggle('text-white/50', !isOn)
+        btn.setAttribute('aria-pressed', isOn)
+    })
+}
+
+// ----------------------------------------------------------showFavorites()
+const showFavorites = () => {
+    viewMode = "favorites"
+    const favorites = getFavorites()
+    paginationContainer.innerHTML = ""
+    updateCreatureCount(favorites.length)
+
+    if(favorites.length === 0){
+        showEmpty(grid, "Aucun favori pour le moment. Clique sur ★ pour en ajouter.")
+        return
+    }
+    renderGrid(favorites, favIds())
+    grid.scrollTop = 0
+}
+
+// ----------------------------------------------------------handleFavorite(id)
+const handleFavorite = (id) => {
+    const creature = findCreature(id)
+    if(!creature) return
+
+    toggleFavorite(creature)
+
+    if(viewMode === "favorites"){
+        showFavorites()
+    }else{
+        refreshStars()
+    }
+
+    if(currentDetail && currentDetail.id === id){
+        showDetail(currentDetail, isFavorite(id))
+    }
+}
+
+// ----------------------------------listener  at grid (retry + favoris + detail) ---------
 grid.addEventListener('click', (e) => {
     const retryBtn = e.target.closest(".retry-btn")
     if(retryBtn) {
         loadPage(currentPage, currentAttribute , currentQuery)
+        return
+    }
+
+    const favBtn = e.target.closest('.fav-btn')
+    if(favBtn){
+        handleFavorite(Number(favBtn.dataset.id))
         return
     }
 
@@ -216,6 +291,7 @@ grid.addEventListener('click', (e) => {
 // ------------------------------listener at detailPanel ----------
 detailPanel.addEventListener('click', (e) => {
     if(e.target.closest('#ferme')){
+        currentDetail = null
         clearDetail()
         return
     }
@@ -224,9 +300,16 @@ detailPanel.addEventListener('click', (e) => {
         if(currentDetailId){
             openDetail(currentDetailId)
         }
+        return
+    }
+
+    const favBtn = e.target.closest('.fav-btn')
+    if(favBtn){
+        handleFavorite(Number(favBtn.dataset.id))
     }
 })
 
 // ----------------load the cards ------ final thing--
+searchInput.value = getLastSearch()
 loadPage(1, 'Tous', '')
 // ----------------------------------------------------
