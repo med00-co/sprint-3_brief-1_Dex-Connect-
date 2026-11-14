@@ -1,7 +1,10 @@
 # Mon Dex connecté — Yu-Gi-Oh!
 
 Dex connecté à l'API YGOPRODeck (https://db.ygoprodeck.com/api-guide/).
-Site : (lien GitHub Pages)
+Site : [(lien GitHub Pages)](https://med00-co.github.io/sprint-3_brief-1_Dex-Connect-/)
+
+## ScreenShoots
+![Project Screenshot](./image/firstPageScreen.png)
 
 ## Fonctionnalités
 - Liste paginée (numéros de page), 20 cartes par page
