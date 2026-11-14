@@ -73,21 +73,21 @@ export const renderGrid = (list, favIds = new Set()) => {
 export const showLoading = (container) => {
     container.innerHTML = ""
     const loadingPhase = document.createElement('div')
-    loadingPhase.className = "flex gap-2 col-span-full my-10 items-center"
+    loadingPhase.className = "flex gap-2 col-span-full w-full min-h-[40vh] items-center justify-center"
     loadingPhase.setAttribute('role', 'status')
     loadingPhase.setAttribute('aria-label', 'Loading')
     loadingPhase.innerHTML = `
     
   <span
-    class="size-5 animate-ping rounded-full bg-gold/80 dark:bg-indigo-300"
+    class="size-8 animate-ping rounded-full bg-gold/80 dark:bg-indigo-300"
     aria-hidden="true"
   ></span>
   <span
-    class="size-5 animate-ping rounded-full bg-gold/80 [animation-delay:0.2s] dark:bg-indigo-300"
+    class="size-8 animate-ping rounded-full bg-gold/80 [animation-delay:0.2s] dark:bg-indigo-300"
     aria-hidden="true"
   ></span>
   <span
-    class="size-5 animate-ping rounded-full bg-gold/80 [animation-delay:0.4s] dark:bg-indigo-300"
+    class="size-8 animate-ping rounded-full bg-gold/80 [animation-delay:0.4s] dark:bg-indigo-300"
     aria-hidden="true"
   ></span>
 
@@ -99,7 +99,7 @@ export const showLoading = (container) => {
 export const showEmpty = (container, text) => {
     container.innerHTML = ""
     container.innerHTML = `
-    <div class="max-w-md text-center col-span-full">
+    <div class="col-span-full justify-self-center w-full max-w-md min-h-[40vh] flex flex-col items-center justify-center text-center px-4">
   <svg
     aria-hidden="true"
     xmlns="http://www.w3.org/2000/svg"
@@ -128,10 +128,10 @@ export const showEmpty = (container, text) => {
 // --------------------------------------------showError(container, message)
 export const showError = (container, message) => {
     container.innerHTML = `
-    <div role="alert" class=" flex flex-col bg-ink/70 px-10 items-center w-full py-20 text-center gap-10 rounded-xl col-span-full  ">
+    <div role="alert" class="flex flex-col bg-ink/70 px-4 md:px-10 items-center justify-center w-full min-h-[40vh] py-12 md:py-20 text-center gap-10 rounded-xl col-span-full">
       <div class="flex flex-col justify-center items-center">
         <h1 class="text-4xl font-extrabold text-red-500 font-display border-b-2 border-red-400">ERROR</h1>
-        <p class="text-2xl font-medium text-white mt-10 border-2 rounded-md p-4 font-body ">${message}</p>
+        <p class="text-lg md:text-2xl font-medium text-white mt-10 border-2 rounded-md p-4 font-body break-words max-w-full">${message}</p>
         <p class="text-sm text-white mt-12">Désolé pour le dérangement. Réessaye plus tard.</p>
 
         <button class="retry-btn rounded-xl mt-10 bg-attr-dark p-3 text-white hover:bg-none hover:bg-attr-dark/80 ">Réessayer</button>
@@ -220,6 +220,9 @@ export const renderPagination = (container , currentPage , totalPages) => {
 export const showDetail = (creature, isFav = false) => {
     const detail = document.getElementById("detail");
     if (!detail) return;
+    
+    detail.classList.remove('bg-white')
+    detail.classList.add(`bg-[url('../image/coverDetail.jpg')]`, 'rounded-[24px]', 'overflow-hidden', 'bg-cover' ,'bg-center', 'bg-no-repeat',  'h-full', 'w-full')
 
     const atkPercent = typeof creature.atk === "number"
         ? Math.min((creature.atk / 5000) * 100, 100)
@@ -232,7 +235,7 @@ export const showDetail = (creature, isFav = false) => {
     const starsHTML = level > 0 ? `
         <div class="flex flex-col gap-1 text-sm">
             <div class="flex items-center justify-between">
-                <span class="font-bold">Étoiles</span>
+                <span class="font-bold text-white">Étoiles</span>
                 <span class="font-mono">${level} / 12</span>
             </div>
             <div class="flex flex-wrap gap-0.5 text-xl leading-none" role="img" aria-label="${level} étoiles sur 12">
@@ -270,28 +273,28 @@ export const showDetail = (creature, isFav = false) => {
         </div>
 
         <!-- Description -------------------->
-        <p class="text-gray-700 text-sm leading-relaxed  whitespace-pre-line">${creature.description}</p>
+        <p class="text-white/80 text-sm leading-relaxed  whitespace-pre-line">${creature.description}</p>
 
         <!-- Stats ----------->
         <div class="flex flex-col gap-3 text-sm">
             ${starsHTML}
 
             <!-- ATK ------------------>
-            <div class="grid grid-cols-[60px_1fr_50px] items-center gap-2">
+            <div class="grid grid-cols-[60px_1fr_50px] items-center gap-2 text-white">
                 <span class="font-bold">ATK</span>
                 <span class="h-3 rounded-full bg-brand-light overflow-hidden">
                     <span class="block h-3 rounded-full bg-brand" style="width: ${atkPercent}%"></span>
                 </span>
-                <span class="text-right font-mono">${creature.atk ?? "—"}</span>
+                <span class="text-right font-mono ">${creature.atk ?? "—"}</span>
             </div>
 
             <!-- DEF ------------>
-            <div class="grid grid-cols-[60px_1fr_50px] items-center gap-2">
+            <div class="grid grid-cols-[60px_1fr_50px] items-center gap-2 text-white">
                 <span class="font-bold">DEF</span>
                 <span class="h-3 rounded-full bg-brand-light overflow-hidden">
                     <span class="block h-3 rounded-full bg-brand" style="width: ${defPercent}%"></span>
                 </span>
-                <span class="text-right font-mono">${creature.def ?? "—"}</span>
+                <span class="text-right font-mono ">${creature.def ?? "—"}</span>
             </div>
         </div>
 
@@ -299,19 +302,19 @@ export const showDetail = (creature, isFav = false) => {
         <div class="grid grid-cols-2 gap-x-4 gap-y-2 text-sm border-t border-gray-200 pt-4 mt-2">
             <div>
                 <span class="text-muted">Race</span>
-                <p class="font-semibold">${creature.race ?? "—"}</p>
+                <p class="font-semibold text-white/80">${creature.race ?? "—"}</p>
             </div>
             <div>
                 <span class="text-muted">Type</span>
-                <p class="font-semibold">${creature.type ?? "—"}</p>
+                <p class="font-semibold text-white/80">${creature.type ?? "—"}</p>
             </div>
             <div>
                 <span class="text-muted">Archetype</span>
-                <p class="font-semibold">${creature.archetype ?? "—"}</p>
+                <p class="font-semibold text-white/80">${creature.archetype ?? "—"}</p>
             </div>
             <div>
                 <span class="text-muted">Éditions</span>
-                <p class="font-semibold">${creature.setsCount ? creature.setsCount + " set(s)" : "—"}</p>
+                <p class="font-semibold text-white/80">${creature.setsCount ? creature.setsCount + " set(s)" : "—"}</p>
             </div>
         </div>
 
@@ -329,6 +332,8 @@ export const clearDetail = () => {
     const detail = document.getElementById('detail')
     if(!detail) return
     
+    detail.classList.add('bg-white')
+    detail.classList.remove(`bg-[url('../image/coverDetail.jpg')]`, 'rounded-[24px]', 'overflow-hidden', 'bg-cover' ,'bg-center', 'bg-no-repeat',  'h-full', 'w-full')
 
     detail.classList.remove(...Object.values(glowClasses))
 

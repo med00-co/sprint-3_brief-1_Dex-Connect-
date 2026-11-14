@@ -87,10 +87,10 @@
       </div>
     </section>
  
-    <div class="flex flex-col lg:flex-row gap-8 items-start">
+    <div class="flex flex-col lg:flex-row gap-8 items-center lg:items-start">
       
      <!-- ===================== GRILLE DES CRÉATURES ===================== -->
-    <div class="flex flex-col gap-4">
+    <div class="flex flex-col gap-4 w-full min-w-0 lg:flex-1">
       <section id="grid" aria-label="Créatures" class="grid min-w-60 max-h-[1390px] overflow-y-auto flex-1 grid-cols-1 mx-auto md:grid-cols-3 lg:grid-cols-3 gap-5">
 
         
@@ -105,7 +105,7 @@
     
       
 
-      <aside class="flex lg:w-[420px] max-w-[400px] md:mx-auto lg:shrink-0 flex-col gap-6">
+      <aside class="flex w-full max-w-[400px] lg:w-[420px] md:mx-auto lg:shrink-0 flex-col gap-6">
 
         <!-- ===================== PANNEAU DE DÉTAIL ===================== -->
         <section id="detail" aria-label="Détail de la créature" class="flex flex-col gap-4 rounded-card mx-auto  bg-white   shadow-[0_0_80px_8px] shadow-attr-divine/60   p-6 ">
@@ -113,7 +113,7 @@
         </section>
 
         <!-- ===================== MON ÉQUIPE (INCOMPLÈTE) ===================== -->
-        <section id="team" aria-label="Mon équipe" class=" rounded-card bg-white p-6  ">
+        <section id="team" aria-label="Mon équipe" class="hidden rounded-card bg-white p-6  ">
           <p id="team-message" class="text-sm text-invalid min-h-5"></p>
          <div class="flex flex-wrap justify-between mx-auto mb-4">
            <h2 class="font-display text-2xl font-extrabold  ">Mon équipe</h2>

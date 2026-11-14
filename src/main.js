@@ -172,7 +172,7 @@ searchForm.addEventListener('submit', (e) =>{
     currentQuery = text
     saveLastSearch(text)
 
-    // si on etait dans Favoris, on remet le chip de l'attribut actif
+    //---- si on etait dans Favoris, on remet le chip de l'attribut actif
     const chip = currentAttribute === 'Tous'
         ? document.getElementById('tous')
         : filtersPlace.querySelector(`[data-attribute="${currentAttribute}"]`)

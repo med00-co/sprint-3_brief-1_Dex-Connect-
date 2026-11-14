@@ -14,7 +14,7 @@ const saveFavorites = (list) => {
   try {
     localStorage.setItem(FAVORITES_KEY, JSON.stringify(list))
   } catch {
-    // stockage indisponible : on ignore
+    return 'stockage indisponible'
   }
 }
 
